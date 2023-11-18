@@ -3,6 +3,9 @@ import Form from 'react-bootstrap/Form';
 import TextField from '@mui/material/TextField';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
 import logo_image from './images/logo.jpg';
 import "./css/Home.css";
 
@@ -10,6 +13,14 @@ export function Home(){
 
     return(
 <div className='main_container'>
+<AppBar position="fixed" sx={{ backgroundColor:'gold' }}>
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Your Notes
+          </Typography>
+          {/* <Button color="inherit">Login</Button> */}
+        </Toolbar>
+      </AppBar>
     <div className="image_container">
         <img className='image' src={logo_image} alt="logo_image" />
     </div>
@@ -19,10 +30,10 @@ export function Home(){
    <h2>Login</h2>
    <TextField className='form-elements' id="outlined-basic" label="Email" variant="outlined" fullWidth margin="normal"/>
    <TextField className='form-elements' id="outlined-password-input" label="Password" type="password" fullWidth margin="normal"/>
-   <Button className='form-elements' variant="outlined" fullWidth sx={{ borderColor: 'yellow', ':hover': { borderColor: 'yellow' } }}>Submit</Button>
+   <Button className='form-elements' variant="outlined" fullWidth sx={{ borderColor: 'gold', ':hover': { borderColor: 'gold' } }}>Submit</Button>
    </form>
    <h2>New Users:</h2>
-   <Button className='form-elements' variant="outlined" fullWidth sx={{ borderColor: 'yellow', ':hover': { borderColor: 'yellow' } }}>Sign Up</Button>
+   <Button className='form-elements' variant="outlined" fullWidth sx={{ borderColor: 'gold', ':hover': { borderColor: 'gold' } }}>Sign Up</Button>
     </Paper>
     
 
