@@ -1,8 +1,8 @@
 import React from 'react';
 import Form from 'react-bootstrap/Form';
-import FloatingLabel from 'react-bootstrap/FloatingLabel';
-import Card from 'react-bootstrap/Card';
-import Button from 'react-bootstrap/Button';
+import TextField from '@mui/material/TextField';
+import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
 import logo_image from './images/logo.jpg';
 import "./css/Home.css";
 
@@ -14,7 +14,23 @@ export function Home(){
         <img className='image' src={logo_image} alt="logo_image" />
     </div>
     <div className='login_container'>
-    <Card
+    <Paper elevation={3} className='login-paper' >
+   <form>
+   <h2>Login</h2>
+   <TextField className='form-elements' id="outlined-basic" label="Email" variant="outlined" fullWidth margin="normal"/>
+   <TextField className='form-elements' id="outlined-password-input" label="Password" type="password" fullWidth margin="normal"/>
+   <Button className='form-elements' variant="outlined" fullWidth sx={{ borderColor: 'yellow', ':hover': { borderColor: 'yellow' } }}>Submit</Button>
+   </form>
+   <h2>New Users:</h2>
+   <Button className='form-elements' variant="outlined" fullWidth sx={{ borderColor: 'yellow', ':hover': { borderColor: 'yellow' } }}>Sign Up</Button>
+    </Paper>
+    
+
+
+
+
+
+    {/* <Card
           bg='light'
           key='light'
           text='dark'
@@ -41,7 +57,7 @@ export function Home(){
             </div>
             </Card.Text>
           </Card.Body>
-        </Card>
+        </Card> */}
    
     </div>
 </div>
