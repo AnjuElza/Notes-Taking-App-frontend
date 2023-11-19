@@ -69,6 +69,7 @@ export function UserPage() {
       if (response.ok) {
         const allNotesData = await response.json();
         setAllNotes(allNotesData);
+        
       } else {
         console.error("Failed to fetch all notes");
       }

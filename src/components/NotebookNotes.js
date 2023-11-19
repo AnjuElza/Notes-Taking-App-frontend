@@ -7,44 +7,37 @@ import CardActions from '@mui/material/CardActions';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { Note } from './Note';
-
+import Paper from '@mui/material/Paper';
 export function NotebookNotes({ notes, selectedNotebook }) {
   console.log("at start",notes)
   const navigate = useNavigate();
   const getNote = (noteId) => {
-    navigate(`/userHome/${noteId}` )
+    navigate(`/userHome/${noteId}`);
   };
   return (
-    <div>
+  
+  <div>
+     
       <Typography sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'space-around' }}>
-        
         {notes &&
           notes
-        
-            .filter((note) => !selectedNotebook || note.notebook === selectedNotebook)
-            .map((note, index) => (
-              
-              <Card key={index} sx={{ width: '10rem', margin: '1rem' }}>
+           
+            .map((note) => (
+              <Card key={note._id} sx={{ width: '10rem', margin: '1rem' }}>
                 <CardContent>
                   <>
                     <Typography variant="h5" component="div">
                       {note.heading}
                     </Typography>
                     <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                      {note.note}
+                    </Typography>
+                    <Typography sx={{ mb: 1.5 }} color="text.secondary">
                       {note.date}
                     </Typography>
-                    
                   </>
-                  {note.heading}
                 </CardContent>
-                <CardActions>
-                  <Button
-                    size="small"
-                    onClick={() => getNote(note._id)}
-                  >
-                    See Note
-                  </Button>
-                </CardActions>
+                
               </Card>
             ))}
       </Typography>

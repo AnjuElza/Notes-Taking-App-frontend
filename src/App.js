@@ -15,7 +15,7 @@ function App() {
     <Route path="/register" element={<Register />} />
     <Route path="/userHome" element={<UserPage />} />
     <Route path="/userHome/:noteBook" element={<NotebookNotes />} />
-    <Route path="/userHome/:note" element={<Note />} />
+    <Route path="/userHome/:noteId" element={<Note />} />
   </Routes>
   </UserProvider>
     // <div className="App">
