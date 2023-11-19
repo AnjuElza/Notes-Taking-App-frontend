@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect  } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -29,15 +29,76 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import { NotebookNotes } from './NotebookNotes';
+import { AddNoteDialog } from './AddNote';
+import {API} from './global';
 
 const drawerWidth = 240;
 
 export function UserPage() {
  
   const [mobileOpen, setMobileOpen] = useState(false);
-  const[notebooks, setNotebooks] = useState(['Notebook 1', 'Notebook 2', 'Notebook 3', 'Notebook 4', 'Notebook 5', 'Notebook 6']);
+  // const[notebooks, setNotebooks] = useState(['Notebook 1', 'Notebook 2', 'Notebook 3', 'Notebook 4', 'Notebook 5', 'Notebook 6']);
+  const [notebooks, setNotebooks] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
+  const [openDialog1, setOpenDialog1] = useState(false);
   const [selectedNotebook, setSelectedNotebook] = useState(null);
+  const [allNotes, setAllNotes] = useState([]);
+  const [notesInSelectedNotebook, setNotesInSelectedNotebook] = useState([]);
+  // const [newNoteData, setNewNoteData] = useState({
+  //   heading: "",
+  //   note: "",
+  //   notebook:"",
+  //   user:"user",
+  // });
+
+  const fetchNotebooks = async () => {
+    try {
+      const response = await fetch(`${API}/notebooks/user`); 
+      if (response.ok) {
+        const notebooksData = await response.json();
+        setNotebooks(notebooksData);
+      } else {
+        console.error('Failed to fetch notebooks');
+      }
+    } catch (error) {
+      console.error('Error fetching notebooks:', error);
+    }
+  };
+
+  const fetchAllNotes = async () => {
+    try {
+      const response = await fetch(`${API}/allNotes/user`);
+      if (response.ok) {
+        const allNotesData = await response.json();
+        setAllNotes(allNotesData);
+      } else {
+        console.error("Failed to fetch all notes");
+      }
+    } catch (error) {
+      console.error("Error fetching all notes:", error);
+    }
+  };
+
+  const fetchNotesInSelectedNotebook = async (notebookId) => {
+    try {
+      const response = await fetch(`${API}/notes/${notebookId}`);
+      if (response.ok) {
+        const selectedNotebookNotes = await response.json();
+        setNotesInSelectedNotebook(selectedNotebookNotes);
+      } else {
+        console.error("Failed to fetch notes in selected notebook");
+      }
+    } catch (error) {
+      console.error("Error fetching notes in selected notebook:", error);
+    }
+  };
+ 
+
+  useEffect(() => {
+    fetchNotebooks();
+    fetchAllNotes();
+  }, []);
+
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -49,100 +110,175 @@ export function UserPage() {
   const handleCloseDialog = () => {
     setOpenDialog(false);
   };
+  const handleOpenDialog1 = () => {
+    setOpenDialog1(true);
+  };
 
-  const handleCreateNotebook = (newNotebookTitle) => {
-    // Add the new notebook title to the notebooks array
-    setNotebooks([...notebooks, newNotebookTitle]);
+  const handleCloseDialog1 = () => {
+    console.log("Closing dialog");
+    setOpenDialog1(false);
+  };
 
+  const handleCreateNotebook = async (newNotebookTitle) => {
+    try {
+      // Make a POST request to your API endpoint
+      const response = await fetch(`${API}/addNotebook`, {
+        method: "POST",
+        body: JSON.stringify({
+          user: "user", 
+          notebook: newNotebookTitle,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Headers": "Content-Type",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
+  
+      if (response.ok) {
+        // Notebook successfully created in the backend, you can handle the response if needed
+        alert("Notebook created successfully!");
+      } else {
+        // Handle errors if any
+        alert("Failed to create notebook");
+      }
+    } catch (error) {
+      console.error("Error creating notebook:", error);
+    }
+  
     // Close the dialog
     handleCloseDialog();
   };
+
+  const handleAddNote = async (newNoteData) => { 
+    try {
+      if (!selectedNotebook) {
+        alert('Please select a notebook before adding a note.');
+        return;
+      }
+      console.log("Request payload:", newNoteData);
+      const response = await fetch(`${API}/addNote`, {
+        method: 'POST',
+        body: JSON.stringify(newNoteData),
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Allow-Origin': '*',
+        },
+      });
+  
+      if (response.ok) {
+        alert('Note created successfully!');
+      } else {
+        alert('Failed to create note');
+      }
+    } catch (error) {
+      console.error('Error creating note:', error);
+    }
+  };
+  
 //const titles=['Notebook 1', 'Notebook 2', 'Notebook 3', 'Notebook 4', 'Notebook 5', 'Notebook 6'];
 // const current_date=new Date().toISOString();
-const notes=[
-    {
-        id:1,
-        notebook:'Notebook 1',
-        heading:'heading',
-        notes:'This is nte 1',
-        date:'29/08/2023',
-        favourite:0,
-    },
-    {
-        id:2,
-        notebook:'Notebook 2',
-        heading:'heading',
-        notes:'wsrwerwerwer hgjgfhjffh fdgdsfgsdgsdg xgsdgsdgsdg  gsdffgdsfgsdg gsdgsdgsg gsdgsdgsg gsdggsdgdf.',
-        date:'4/09/2023',
-        favourite:0
-    },
-    {
-        id:3,
-        notebook:'Notebook 3',
-        heading:'heading',
-        notes:'weqwrwqrwq32 fgretet twetw ',
-        date:'18/10/2023',
-        favourite:0
-    },
 
-    {
-        id:4,
-        notebook:'Notebook 4',
-        heading:'heading',
-        notes:'This is nte 1',
-        date:'18/10/2023',
-        favourite:0
-    },
-    {
-        id:5,
-        notebook:'Notebook 5',
-        heading:'heading',
-        notes:'This is nte 1',
-        date:'18/10/2023',
-        favourite:0
-    },
-    {
-        id:6,
-        notebook:'Notebook 1',
-        heading:'heading',
-        notes:'This is nte 1',
-        date:'18/10/2023',
-        favourite:0
-    },
-    {
-        id:7,
-        notebook:'Notebook 1',
-        heading:'heading',
-        notes:'This is nte 1',
-        date:'18/10/2023',
-        favourite:0
-    },
+const handleNotebookSelection = async (selectedNotebook) => {
+  setSelectedNotebook(selectedNotebook);
+ 
+  await fetchNotesInSelectedNotebook(selectedNotebook._id); // Assuming _id is the notebook id
+};
+// const notes=[
+//     {
+//         id:1,
+//         user:"user1",
+//         notebook:'Notebook 1',
+//         heading:'heading',
+//         notes:'This is nte 1',
+//         date:'29/08/2023',
+//         favourite:0,
+//     },
+//     {
+//         id:2,
+//         user:"user2",
+//         notebook:'Notebook 2',
+//         heading:'heading',
+//         notes:'wsrwerwerwer hgjgfhjffh fdgdsfgsdgsdg xgsdgsdgsdg  gsdffgdsfgsdg gsdgsdgsg gsdgsdgsg gsdggsdgdf.',
+//         date:'4/09/2023',
+//         favourite:0
+//     },
+//     {
+//         id:3,
+//         user:"user2",
+//         notebook:'Notebook 3',
+//         heading:'heading',
+//         notes:'weqwrwqrwq32 fgretet twetw ',
+//         date:'18/10/2023',
+//         favourite:0
+//     },
 
-    {
-        id:8,
-        notebook:'Notebook 1',
-        heading:'heading',
-        notes:'This is nte 1',
-        date:'18/10/2023',
-        favourite:0
-    },
-    {
-        id:9,
-        notebook:'Notebook 1',
-        heading:'heading',
-        notes:'This is nte 1',
-        date:'18/10/2023',
-        favourite:0
-    },
-    {
-        id:10,
-        notebook:'Notebook 2',
-        heading:'heading',
-        notes:'This is nte 1',
-        date:'18/10/2023',
-        favourite:0
-    }
-]
+//     {
+//         id:4,
+//         user:"user1",
+//         notebook:'Notebook 4',
+//         heading:'heading',
+//         notes:'This is nte 1',
+//         date:'18/10/2023',
+//         favourite:0
+//     },
+//     {
+//         id:5,
+//         user:"user1",
+//         notebook:'Notebook 5',
+//         heading:'heading',
+//         notes:'This is nte 1',
+//         date:'18/10/2023',
+//         favourite:0
+//     },
+//     {
+//         id:6,
+//         user:"user2",
+//         notebook:'Notebook 1',
+//         heading:'heading',
+//         notes:'This is nte 1',
+//         date:'18/10/2023',
+//         favourite:0
+//     },
+//     {
+//         id:7,
+//         user:"user3",
+//         notebook:'Notebook 3',
+//         heading:'heading',
+//         notes:'This is nte 1',
+//         date:'18/10/2023',
+//         favourite:0
+//     },
+
+//     {
+//         id:8,
+//         user:"user3",
+//         notebook:'Notebook 1',
+//         heading:'heading',
+//         notes:'This is nte 1',
+//         date:'18/10/2023',
+//         favourite:0
+//     },
+//     {
+//         id:9,
+//         user:"user3",
+//         notebook:'Notebook 2',
+//         heading:'heading',
+//         notes:'This is nte 1',
+//         date:'18/10/2023',
+//         favourite:0
+//     },
+//     {
+//         id:10,
+//         user:"user3",
+//         notebook:'Notebook 2',
+//         heading:'heading',
+//         notes:'This is nte 1',
+//         date:'18/10/2023',
+//         favourite:0
+//     }
+// ]
   const drawer = (
     <div>
       <Toolbar />
@@ -157,17 +293,17 @@ const notes=[
       </Button>
       <Divider />
       <List>
-        { notebooks.map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton onClick={() => setSelectedNotebook(text)}>
-            <ListItemIcon>
-                    < MenuBookIcon />
-            </ListItemIcon>
-            <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
+  {notebooks.map((notebook) => (
+    <ListItem key={notebook._id} disablePadding selected={selectedNotebook === notebook}>
+      <ListItemButton onClick={() => setSelectedNotebook(notebook)}>
+        <ListItemIcon>
+          <MenuBookIcon />
+        </ListItemIcon>
+        <ListItemText primary={notebook.notebook} />
+      </ListItemButton>
+    </ListItem>
+  ))}
+</List>
     </div>
   );
 
@@ -193,7 +329,7 @@ const notes=[
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            Navbar
+            MyNotes
           </Typography>
         </Toolbar>
       </AppBar>
@@ -202,6 +338,18 @@ const notes=[
         sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
         aria-label="mailbox folders"
       >
+        <Box
+        component="main"
+        sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
+      >
+        <Toolbar />
+        
+        <NotebookNotes
+          notes={selectedNotebook ? notesInSelectedNotebook : allNotes}
+          selectedNotebook={selectedNotebook}
+        />
+       
+      </Box>
         {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
         <Drawer
         //   container={container}
@@ -233,45 +381,50 @@ const notes=[
         component="main"
         sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
       >
-        {/* <Toolbar />
-        <Typography sx={{ display: 'flex', flexWrap: 'wrap', alignItems:'space-around' }}>
-        {notes.map((note)=>(
-        <Card key={note.index} sx={{ width:'10rem', margin:'1rem' }}>
-      <CardContent> 
         
-            <><Typography variant="h5" component="div">
-                {note.heading}
-            </Typography>
-            <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                    {note.date}
-                </Typography></>
-          
-      </CardContent>
-      <CardActions>
-        <Button size="small">See Note</Button>
-      </CardActions>
-    </Card>
-    ))}
-        </Typography>
-        
-      </Box>
-      <AddNotebookDialog open={openDialog} onClose={handleCloseDialog} onCreate={handleCreateNotebook} />
-    </Box>
-  ); */}
   <Toolbar />
-        <NotebookNotes notes={notes} selectedNotebook={selectedNotebook} />
+  {selectedNotebook && (
+          <Button
+            variant="contained"
+            onClick={handleOpenDialog1}
+            sx={{
+              position: "absolute",
+              top: 50,
+              right: 0,
+              margin: "2rem",
+            }}
+          >
+            Add Note
+          </Button>
+        )}
+        <NotebookNotes
+          notes={selectedNotebook ? notesInSelectedNotebook : allNotes}
+          selectedNotebook={selectedNotebook}
+        />
       </Box>
-      <AddNotebookDialog open={openDialog} onClose={handleCloseDialog} onCreate={handleCreateNotebook} />
+      <AddNotebookDialog open={openDialog} onClose={handleCloseDialog} onCreate={handleCreateNotebook} /> 
+ /* Add Note Dialog*/
+ <AddNoteDialog
+        open={openDialog1}
+        onClose={handleCloseDialog1}
+        onAddNote={handleAddNote}
+        notebook={selectedNotebook ? selectedNotebook._id : ''} 
+      />
+     
+
     </Box>
   );
 }
 
+
 function AddNotebookDialog({ open, onClose, onCreate }) {
+
   const [notebookTitle, setNotebookTitle] = useState('');
-const handleCreateNotebook = () => {
+  
+  const handleCreateNotebook = () => {
   // Invoke the callback function with the entered title
   onCreate(notebookTitle);
-};
+  };
 
   return (
     <Dialog open={open} onClose={onClose}>
