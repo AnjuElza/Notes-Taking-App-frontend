@@ -7,10 +7,47 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import logo_image from './images/logo.jpg';
+import { useState } from "react";
+import {Link, useNavigate} from 'react-router-dom';
+import Register from './Register';
+import {toast} from 'react-hot-toast';
+import axios from "axios";
+import {API} from './global';
 import "./css/Home.css";
 
 export function Home(){
-
+  const navigate= useNavigate();
+  const[data,setData]=useState({
+      username:"",
+      password:"",
+  })
+  const loginUser = async (e) => {
+    e.preventDefault();
+  
+    try {
+      const response = await fetch(`${API}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+  
+      const result = await response.json();
+  
+      if (response.ok) {
+        // Successful login
+        localStorage.setItem('token', result.token);
+        localStorage.setItem('username', data.username);
+        navigate(`/userHome`);
+      } else {
+        // Failed login
+        toast.error(result.error);
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+    }
+  };
     return(
 <div className='main_container'>
 <AppBar position="fixed" sx={{ backgroundColor:'gold' }}>
@@ -26,52 +63,32 @@ export function Home(){
     </div>
     <div className='login_container'>
     <Paper elevation={3} className='login-paper' >
-   <form>
+   <form onSubmit={loginUser}>
    <h2>Login</h2>
-   <TextField className='form-elements' id="outlined-basic" label="Email" variant="outlined" fullWidth margin="normal"/>
-   <TextField className='form-elements' id="outlined-password-input" label="Password" type="password" fullWidth margin="normal"/>
-   <Button className='form-elements' variant="outlined" fullWidth sx={{ borderColor: 'gold', ':hover': { borderColor: 'gold' } }}>Submit</Button>
+   <TextField required className='form-elements' id="outlined-basic" label="Username" variant="outlined" fullWidth margin="normal"
+             value={data.username}
+             onChange={(e)=>setData({...data,username: e.target.value})}
+    />
+   <TextField required className='form-elements' id="outlined-password-input" label="Password" type="password" fullWidth margin="normal"
+              value={data.password}
+              onChange={(e)=>setData({...data,password: e.target.value})}
+   />
+   <Button className='form-elements' variant="outlined" fullWidth sx={{ borderColor: 'gold', ':hover': { borderColor: 'gold' } }} 
+   onClick={(e) => loginUser(e)}
+   >
+    Login</Button>
    </form>
    <h2>New Users:</h2>
-   <Button className='form-elements' variant="outlined" fullWidth sx={{ borderColor: 'gold', ':hover': { borderColor: 'gold' } }}>Sign Up</Button>
+   <Link to={'/register'}>
+   <Button className='form-elements' variant="outlined" fullWidth sx={{ borderColor: 'gold', ':hover': { borderColor: 'gold' } }}
+            
+   >Sign Up</Button>
+   </Link>
     </Paper>
-    
-
-
-
-
-
-    {/* <Card
-          bg='light'
-          key='light'
-          text='dark'
-          style={{boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)' }}
-          className="mb-2 login-card"
-          
-        >
-           <Card.Header className="text-center" style={{ height: '60px' }}>YNote</Card.Header>
-          <Card.Body>
-            <Card.Title><h4>Login </h4></Card.Title>
-            <Card.Text>
-            <FloatingLabel controlId="floatingInput" className="mb-3">
-        <Form.Control type="email" placeholder="Email" />
-      </FloatingLabel>
-      <FloatingLabel controlId="floatingPassword" >
-        <Form.Control type="password" placeholder="Password" />
-      </FloatingLabel>
-      
-      <Button variant="warning" bg="warning">Log In</Button>
-           
-            <div>
-                <h4>New Users:</h4>
-                <Button variant="warning" bg="warning">Sign In</Button>
-            </div>
-            </Card.Text>
-          </Card.Body>
-        </Card> */}
    
     </div>
 </div>
     );
 
 }
+

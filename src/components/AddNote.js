@@ -1,22 +1,29 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import { useUser } from './UserContext';
 
-export function AddNoteDialog({ open, onClose, onAddNote, notebook }) {
+export function AddNoteDialog({ open, onClose, onAddNote, notebook}) {
+    const { user } = useUser();
+     
+    const username=user.username;
   const [newNoteData, setNewNoteData] = useState({
     heading: '',
     note: '',
-    user:'user',
-    notebook:'notebook',
+    user:username,
+    notebook:notebook,
     date:new Date().toLocaleDateString(),
   });
+  
   console.log(notebook);
   const handleAddNote = () => {
-    console.log('Adding Note:', newNoteData); // Log the state before adding the note
+   
+    console.log('Adding Note:', newNoteData);
     onAddNote(newNoteData);
     onClose();
   };

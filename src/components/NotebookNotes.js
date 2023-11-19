@@ -9,6 +9,7 @@ import Typography from '@mui/material/Typography';
 import { Note } from './Note';
 
 export function NotebookNotes({ notes, selectedNotebook }) {
+  console.log("at start",notes)
   const navigate = useNavigate();
   const getNote = (noteId) => {
     navigate(`/userHome/${noteId}` )
@@ -16,10 +17,13 @@ export function NotebookNotes({ notes, selectedNotebook }) {
   return (
     <div>
       <Typography sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'space-around' }}>
+        
         {notes &&
           notes
+        
             .filter((note) => !selectedNotebook || note.notebook === selectedNotebook)
             .map((note, index) => (
+              
               <Card key={index} sx={{ width: '10rem', margin: '1rem' }}>
                 <CardContent>
                   <>
@@ -29,12 +33,14 @@ export function NotebookNotes({ notes, selectedNotebook }) {
                     <Typography sx={{ mb: 1.5 }} color="text.secondary">
                       {note.date}
                     </Typography>
+                    
                   </>
+                  {note.heading}
                 </CardContent>
                 <CardActions>
                   <Button
                     size="small"
-                    onClick={() => getNote(note.id)}
+                    onClick={() => getNote(note._id)}
                   >
                     See Note
                   </Button>

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect  } from 'react';
+import {useNavigate, Link} from "react-router-dom";
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -28,6 +29,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
+import { useUser } from './UserContext';
 import { NotebookNotes } from './NotebookNotes';
 import { AddNoteDialog } from './AddNote';
 import {API} from './global';
@@ -35,7 +37,8 @@ import {API} from './global';
 const drawerWidth = 240;
 
 export function UserPage() {
- 
+  const { user } = useUser();
+  const username=user.username;
   const [mobileOpen, setMobileOpen] = useState(false);
   // const[notebooks, setNotebooks] = useState(['Notebook 1', 'Notebook 2', 'Notebook 3', 'Notebook 4', 'Notebook 5', 'Notebook 6']);
   const [notebooks, setNotebooks] = useState([]);
@@ -44,16 +47,11 @@ export function UserPage() {
   const [selectedNotebook, setSelectedNotebook] = useState(null);
   const [allNotes, setAllNotes] = useState([]);
   const [notesInSelectedNotebook, setNotesInSelectedNotebook] = useState([]);
-  // const [newNoteData, setNewNoteData] = useState({
-  //   heading: "",
-  //   note: "",
-  //   notebook:"",
-  //   user:"user",
-  // });
-
+ 
+  const navigate = useNavigate();
   const fetchNotebooks = async () => {
     try {
-      const response = await fetch(`${API}/notebooks/user`); 
+      const response = await fetch(`${API}/notebooks/${username}`); 
       if (response.ok) {
         const notebooksData = await response.json();
         setNotebooks(notebooksData);
@@ -67,7 +65,7 @@ export function UserPage() {
 
   const fetchAllNotes = async () => {
     try {
-      const response = await fetch(`${API}/allNotes/user`);
+      const response = await fetch(`${API}/allNotes/${username}`);
       if (response.ok) {
         const allNotesData = await response.json();
         setAllNotes(allNotesData);
@@ -125,7 +123,7 @@ export function UserPage() {
       const response = await fetch(`${API}/addNotebook`, {
         method: "POST",
         body: JSON.stringify({
-          user: "user", 
+          user: username, 
           notebook: newNotebookTitle,
         }),
         headers: {
@@ -138,6 +136,7 @@ export function UserPage() {
       if (response.ok) {
         // Notebook successfully created in the backend, you can handle the response if needed
         alert("Notebook created successfully!");
+        await fetchNotebooks();
       } else {
         // Handle errors if any
         alert("Failed to create notebook");
@@ -150,14 +149,14 @@ export function UserPage() {
     handleCloseDialog();
   };
 
-  const handleAddNote = async (newNoteData) => { 
+  const handleAddNote = async (newNoteData, notebookId) => { 
     try {
       if (!selectedNotebook) {
         alert('Please select a notebook before adding a note.');
         return;
       }
       console.log("Request payload:", newNoteData);
-      const response = await fetch(`${API}/addNote`, {
+      const response = await fetch(`${API}/addNote/${notebookId}`, {
         method: 'POST',
         body: JSON.stringify(newNoteData),
         headers: {
@@ -179,12 +178,23 @@ export function UserPage() {
   
 //const titles=['Notebook 1', 'Notebook 2', 'Notebook 3', 'Notebook 4', 'Notebook 5', 'Notebook 6'];
 // const current_date=new Date().toISOString();
-
-const handleNotebookSelection = async (selectedNotebook) => {
+const handleNotebookClick = async (selectedNotebook) => {
   setSelectedNotebook(selectedNotebook);
- 
   await fetchNotesInSelectedNotebook(selectedNotebook._id); // Assuming _id is the notebook id
 };
+// const handleNotebookSelection = async (selectedNotebook) => {
+//   setSelectedNotebook(selectedNotebook);
+ 
+//   await fetchNotesInSelectedNotebook(selectedNotebook._id); // Assuming _id is the notebook id
+// };
+
+const handleSignOut = () => {
+  // Clear user-related information from local storage
+  localStorage.removeItem('token');
+  localStorage.removeItem('username');
+  navigate('/');
+};
+
 // const notes=[
 //     {
 //         id:1,
@@ -295,7 +305,7 @@ const handleNotebookSelection = async (selectedNotebook) => {
       <List>
   {notebooks.map((notebook) => (
     <ListItem key={notebook._id} disablePadding selected={selectedNotebook === notebook}>
-      <ListItemButton onClick={() => setSelectedNotebook(notebook)}>
+      <ListItemButton onClick={() => handleNotebookClick(notebook)}>
         <ListItemIcon>
           <MenuBookIcon />
         </ListItemIcon>
@@ -314,7 +324,7 @@ const handleNotebookSelection = async (selectedNotebook) => {
       <AppBar
         position="fixed"
         sx={{
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          width: {  backgroundColor:'gold', sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
         }}
       >
@@ -331,6 +341,7 @@ const handleNotebookSelection = async (selectedNotebook) => {
           <Typography variant="h6" noWrap component="div">
             MyNotes
           </Typography>
+          <Button color="inherit" onClick={handleSignOut} sx={{ marginLeft: 'auto' }}>Sign Out</Button>
         </Toolbar>
       </AppBar>
       <Box
@@ -344,10 +355,10 @@ const handleNotebookSelection = async (selectedNotebook) => {
       >
         <Toolbar />
         
-        <NotebookNotes
+        {/* <NotebookNotes
           notes={selectedNotebook ? notesInSelectedNotebook : allNotes}
           selectedNotebook={selectedNotebook}
-        />
+        /> */}
        
       </Box>
         {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
@@ -403,12 +414,13 @@ const handleNotebookSelection = async (selectedNotebook) => {
         />
       </Box>
       <AddNotebookDialog open={openDialog} onClose={handleCloseDialog} onCreate={handleCreateNotebook} /> 
- /* Add Note Dialog*/
+ /* Add Note Dialog - onAddNote={handleAddNote} notebook={selectedNotebook ? selectedNotebook._id : ''}*/
  <AddNoteDialog
         open={openDialog1}
         onClose={handleCloseDialog1}
-        onAddNote={handleAddNote}
-        notebook={selectedNotebook ? selectedNotebook._id : ''} 
+       
+       
+        onAddNote={(newNoteData) => handleAddNote(newNoteData, selectedNotebook ? selectedNotebook._id : '')} 
       />
      
 
